@@ -1,0 +1,16 @@
+{
+    "presets": [ "es2015" ],
+    "moduleIds": true,
+    "moduleId": "TrackJS",
+    "plugins": [
+        "transform-runtime"
+    ],
+    "env": {
+        "browser": {
+            "plugins": [
+                "transform-runtime",
+                "add-module-exports"
+            ]
+        }
+    }
+}

@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title></title>
+        <script src="../dist/track.min.js"></script>
+    </head>
+    <body>
+        <script>
+            var g = new TrackJS({
+                endpoint: 'https://bbbx-track-staging.herokuapp.com',
+                propertyId: 'UA-20360645-12'
+            });
+
+            console.log(g.override('bla', { test: 34, actor: 'gert' }));
+            console.log(g.override('http://localhost/vla', { test: 34, actor: 'gert' }));
+            console.log(g.override('http://localhost/vla/bla', { test: 34, actor: 'gert' }));
+            console.log(g.override('http://localhost/vla/eyJ0ZXN0IjozNCwiYXQiOiJnZXJ0In0/', { test: 34, actor: 'gert' }));
+            console.log(g.override('http://localhost/vla/eyJ0ZXN0IjozNCwiYXQiOiJnZXJ0In0/', { test: 40, actor: 'gfzefert' }));
+
+            // g.shorten({
+            //     url: 'http://twitter.com'
+            // }).then(function (res) {
+            //     console.log(res);
+            // }).catch(function (err) {
+            //     console.error(err);
+            // });
+        </script>
+    </body>
+</html>
