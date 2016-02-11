@@ -61,6 +61,9 @@ const create = (params, options) => new Promise((resolve, reject) => {
     request.open('POST', url, true);
     request.setRequestHeader('Content-Type', 'application/json');
 
+    if (options.accessToken)
+        request.setRequestHeader('X-API-KEY', options.accessToken);
+
     request.onload = function() {
         const text = request.responseText;
         const status = request.status;
