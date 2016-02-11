@@ -113,9 +113,9 @@ class TrackJS {
         if (match) {
             if (!this.options.baseUrl)
                 throw new Error('No baseUrl or endpoint specified in options.');
-            newUrl = `${this.options.baseUrl}/${url}/`;
+            newUrl = `${this.options.baseUrl}/${url}`;
         } else if (match = shortlinkRe.exec(url)) {
-            newUrl = `${match[1]}/`;
+            newUrl = `${match[1]}`;
             if (match.length > 2 && match[2])
                 baseParams = decode(match[2]) || {};
         } else {
@@ -125,7 +125,7 @@ class TrackJS {
         Object.assign(shrink(baseParams), shrink(params));
 
         if (Object.keys(baseParams).length) {
-            newUrl += `${encode(baseParams)}/`;
+            newUrl += `/${encode(baseParams)}`;
         }
 
         return newUrl;
