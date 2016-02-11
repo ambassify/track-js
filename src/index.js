@@ -1,6 +1,6 @@
 'use strict';
 
-const shortlinkRe = /^(https?:\/\/[^/]+\/[0-9a-z]+)(?:\/([0-9a-z-_=]+))?\/?/i;
+const shortlinkRe = /^(https?:\/\/[^/]+\/r\/[0-9a-z]+)(?:\/([0-9a-z-_=]+))?\/?/i;
 const shortcodeRe = /^[0-9a-z]+$/i;
 
 const b64encRe = /[+/=]/g;
