@@ -7,24 +7,36 @@
     </head>
     <body>
         <script>
-            var g = new TrackJS({
-                endpoint: 'https://bbbx-track-staging.herokuapp.com',
-                propertyId: 'UA-20360645-12'
+            var tracker = new TrackJS({
+                endpoint: 'https://forwrd.it',
+                propertyId: 'UA-20360645-12',
+                accessToken: 'xxxxxxx',
+                strict: true
             });
 
-            console.log(g.override('bla', { test: 34, actor: 'gert' }));
-            console.log(g.override('http://localhost/vla', { test: 34, actor: 'gert' }));
-            console.log(g.override('http://localhost/vla/bla', { test: 34, actor: 'gert' }));
-            console.log(g.override('http://localhost/vla/eyJ0ZXN0IjozNCwiYXQiOiJnZXJ0In0/', { test: 34, actor: 'gert' }));
-            console.log(g.override('http://localhost/vla/eyJ0ZXN0IjozNCwiYXQiOiJnZXJ0In0/', { test: 40, actor: 'gfzefert' }));
+            // tracker.id('1234', '9876', TrackJS.PIXEL_TYPES.gif, true);
+            // tracker.id('12345', '9876', TrackJS.PIXEL_TYPES.empty, true);
+            // tracker.pixel({ ac: 'gert', ec: 'test', ea: 'view' }, TrackJS.PIXEL_TYPES.gif, true);
+            // tracker.pixel({ ac: 'gert', ec: 'test', ea: 'open' }, TrackJS.PIXEL_TYPES.empty, true);
 
-            // g.shorten({
-            //     url: 'http://twitter.com'
-            // }).then(function (res) {
-            //     console.log(res);
-            // }).catch(function (err) {
-            //     console.error(err);
-            // });
+            // tracker.shorten(
+            //     { u: 'http://middlemanapp.com' },
+            //     { u: 'http://google.com' }
+            // ).then(url => {
+            //     console.log(url);
+            //     console.log(tracker.override(url, { u: 'http://twitter.com' }));
+            // }).catch(e => console.log(e));
+            //
+            // try {
+            //     tracker.override(
+            //         'http://bbbx-track-prodcution.herokuapp.com/r/a',
+            //         { u: 'http://google.com' }
+            //     );
+            //     console.error('Should have failed');
+            // } catch (e) {
+            //     console.log('OK, it failed because strict is on.');
+            // }
+
         </script>
     </body>
 </html>

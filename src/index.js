@@ -1,6 +1,6 @@
 'use strict';
 
-const shortlinkRe = /^(https?:\/\/[^/]+\/r\/[0-9a-z]+)(?:\/([0-9a-z-_=]+))?\/?/i;
+const shortlinkRe = /^(https?):\/\/([^/]+)\/r\/([0-9a-z]+)(?:\/([0-9a-z-_=]+))?/i;
 const shortcodeRe = /^[0-9a-z]+$/i;
 
 const b64encRe = /[+/=]/g;
@@ -20,6 +20,17 @@ const b64decFunc = (match) => {
         return '+';
     else if (match == '_')
         return '/';
+};
+
+const pixelTypes = {
+    gif: '.gif',
+    empty: ''
+}
+
+const responseTypes = {
+    OK: 'ok',
+    UNAUTHORIZED: 'unauthorized',
+    UNKNOWN: 'unknown'
 };
 
 const longToShort = {
@@ -75,51 +86,108 @@ const create = (params, options) => new Promise((resolve, reject) => {
 
         const ok = status === 200 || status === 201;
 
-        if (!data || (ok && !data.shortlink) || (!ok && !data.message))
-            reject(new Error(`Invalid response from endpoint: ${text}`));
+        if (status === 401 || status === 403)
+            return reject({
+                type: responseTypes.UNAUTHORIZED,
+                status: status,
+                message: 'Unauthorized',
+                response: data || text
+            });
 
-        if (ok) {
-            resolve(data.shortlink);
-        } else {
-            reject(new Error(`Endpoint responded [${status}]: ${data.message}`));
-        }
+        if (!data || (ok && !data.shortlink) || (!ok && !data.message))
+            return reject({
+                type: responseTypes.UNKNOWN,
+                status: status,
+                message: 'Invalid response from endpoint',
+                response: text
+            });
+
+        if (!ok)
+            return reject({
+                type: responseTypes.UNKNOWN,
+                status: status,
+                message: data.message,
+                response: data
+            });
+
+        resolve(data.shortlink);
     };
 
     request.onerror = function() {
-        reject(new Error('Failed to connect to endpoint.'));
+        reject({
+            type: responseTypes.UNKNOWN,
+            status: null,
+            message: 'Failed to connect to endpoint',
+            response: null
+        });
     };
 
     request.send(JSON.stringify(params));
 })
 
+const parseShortcode = (shortcode) => {
+    return shortcodeRe.test(shortcode) ? { shortcode } : false;
+}
+
+const parseShortlink = (url, baseUrl) => {
+    const m = shortlinkRe.exec(url);
+
+    if (!m || (baseUrl && baseUrl.replace(/(https?:)?\/\//, '') !== m[2]))
+        return false;
+
+    return {
+        protocol: m[1],
+        domain: m[2],
+        shortcode: m[3],
+        override: m.length > 4 ? decode(m[4]) || {} : {}
+    };
+}
+
+const loadImg = (url) => {
+    const image = new Image();
+    image.src = url;
+}
+
 export default
 class TrackJS {
     constructor(options) {
-        this.options = options;
+        this.options = options || {};
+        this.options.strict = options.strict || false;
         this.options.baseUrl = options.baseUrl || options.endpoint;
+
+        if (this.options.strict && !this.options.baseUrl)
+            throw new Error('baseUrl or endpoint required in strict mode.');
     }
 
-    shorten(params) {
+    shorten(params, override) {
         params = shrink(params);
         params.p = params.p || this.options.propertyId;
-        return create(params, this.options);
+
+        return create(params, this.options)
+            .then(link => override ? this.override(link, override) : link);
     }
 
-    override(url, params) {
+    override(short, params) {
         let newUrl = '';
         let baseParams = {};
-        let match = shortcodeRe.exec(url);
+        let parsed = parseShortcode(short);
 
-        if (match) {
-            if (!this.options.baseUrl)
-                throw new Error('No baseUrl or endpoint specified in options.');
-            newUrl = `${this.options.baseUrl}/${url}`;
-        } else if (match = shortlinkRe.exec(url)) {
-            newUrl = `${match[1]}`;
-            if (match.length > 2 && match[2])
-                baseParams = decode(match[2]) || {};
+        if (parsed && !this.options.baseUrl) {
+            throw new Error('baseUrl or endpoint not specified in options.');
+        } else if (parsed) {
+            newUrl = `${this.options.baseUrl}/${parsed.shortcode}`;
         } else {
-            throw new Error(`Not a valid url or shortcode: ${url}`);
+            parsed = this.options.strict ?
+                parseShortlink(short, this.options.baseUrl) :
+                parseShortlink(short);
+
+            if (parsed) {
+                const { protocol, domain, shortcode, override } = parsed;
+                newUrl = `${protocol}://${domain}/r/${shortcode}`;
+                baseParams = override;
+            } else {
+                throw new Error(`Not a valid shortlink or shortcode: ${url}`);
+            }
         }
 
         Object.assign(shrink(baseParams), shrink(params));
@@ -130,4 +198,35 @@ class TrackJS {
 
         return newUrl;
     }
+
+    id(ambassadorId, accountId, type = pixelTypes.gif, load = false) {
+        if (!this.options.baseUrl)
+            throw new Error('baseUrl or endpoint not specified in options.');
+
+        const url =
+            `${this.options.baseUrl}/id/${accountId}/${ambassadorId}${type}`;
+
+        if (load)
+            loadImg(url);
+
+        return url;
+    }
+
+    pixel(params = {}, type = pixelTypes.gif, load = false) {
+        if (!this.options.baseUrl)
+            throw new Error('baseUrl or endpoint not specified in options.');
+
+        shrink(params);
+        params.p = params.p || this.options.propertyId;
+
+        const url = `${this.options.baseUrl}/pixel/${encode(params)}${type}`;
+
+        if (load)
+            loadImg(url);
+
+        return url;
+    }
 }
+
+TrackJS.PIXEL_TYPES = pixelTypes;
+TrackJS.RESPONSE_TYPES = responseTypes;
