@@ -37,6 +37,7 @@
     "webpack": "^1.12.13"
   },
   "dependencies": {
+    "compact-base64": "^1.1.0",
     "xhr2": "^0.1.3"
   }
 }
