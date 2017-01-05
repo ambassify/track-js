@@ -119,7 +119,7 @@ const parseShortlink = (url, baseUrl) => {
         protocol: m[1],
         domain: m[2],
         shortcode: m[3],
-        override: m.length > 4 ? decodeUrl(m[4]) || {} : {}
+        override: m.length > 4 && m[4] ? decodeUrl(m[4]) || {} : {}
     };
 }
 
