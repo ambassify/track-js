@@ -1,5 +1,7 @@
 'use strict';
 
+const XMLHttpRequest = XMLHttpRequest || require('xhr2' + '');
+
 const shortlinkRe = /^(https?):\/\/([^/]+)\/r\/([0-9a-z]+)(?:\/([0-9a-z-_=]+))?/i;
 const shortcodeRe = /^[0-9a-z]+$/i;
 

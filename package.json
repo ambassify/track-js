@@ -35,5 +35,8 @@
     "babel-preset-es2015": "^6.5.0",
     "npm-build-tools": "^2.2.5",
     "webpack": "^1.12.13"
+  },
+  "dependencies": {
+    "xhr2": "^0.1.3"
   }
 }
