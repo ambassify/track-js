@@ -31,6 +31,7 @@ const longToShort = {
 };
 
 const encode = (v) => encodeUrl(JSON.stringify(v));
+const decode = (v) => { try { return JSON.parse(decodeUrl(v)); } catch(e) {}; };
 
 const shrink = o => {
     for (var key in o) {
@@ -119,7 +120,7 @@ const parseShortlink = (url, baseUrl) => {
         protocol: m[1],
         domain: m[2],
         shortcode: m[3],
-        override: m.length > 4 && m[4] ? decodeUrl(m[4]) || {} : {}
+        override: m.length > 4 && m[4] ? decode(m[4]) || {} : {}
     };
 }
 
@@ -166,7 +167,7 @@ class TrackJS {
                 newUrl = `${protocol}://${domain}/r/${shortcode}`;
                 baseParams = override;
             } else {
-                throw new Error(`Not a valid shortlink or shortcode: ${url}`);
+                throw new Error(`Not a valid shortlink or shortcode: ${short}`);
             }
         }
 
