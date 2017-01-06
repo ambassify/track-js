@@ -27,6 +27,13 @@ Example using `v1.0.0`:
 </html>
 ```
 
+## Testing
+
+The included tests can be run in node using `npm test` or in the browser by opening the `test/mocha.html` file with the endpoint and key query parameters set correctly.
+
+```
+test/mocha.html?endpoint=https://forwrd.it&key=<api-key>
+```
 
 ## Release
 

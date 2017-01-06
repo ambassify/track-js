@@ -1,26 +1,10 @@
 'use strict';
 
+const XMLHttpRequest = XMLHttpRequest || require('xhr2' + '');
+const { encodeUrl, decodeUrl } = require('compact-base64');
+
 const shortlinkRe = /^(https?):\/\/([^/]+)\/r\/([0-9a-z]+)(?:\/([0-9a-z-_=]+))?/i;
 const shortcodeRe = /^[0-9a-z]+$/i;
-
-const b64encRe = /[+/=]/g;
-const b64decRe = /[-_]/g;
-
-const b64encFunc = (match) => {
-    if (match == '=')
-        return '';
-    else if (match == '+')
-        return '-';
-    else if (match == '/')
-        return '_';
-};
-
-const b64decFunc = (match) => {
-    if (match == '-')
-        return '+';
-    else if (match == '_')
-        return '/';
-};
 
 const pixelTypes = {
     gif: '.gif',
@@ -46,12 +30,9 @@ const longToShort = {
     'eventAction': 'ea',
 };
 
-const encode = (v) => btoa(JSON.stringify(v)).replace(b64encRe, b64encFunc);
-const decode = (str) => {
-    try {
-        return JSON.parse(atob(str.replace(b64decRe, b64decFunc)));
-    } catch (e) { }
-}
+const encode = (v) => encodeUrl(JSON.stringify(v));
+const decode = (v) => { try { return JSON.parse(decodeUrl(v)); } catch(e) {}; };
+
 const shrink = o => {
     for (var key in o) {
         if (o.hasOwnProperty(key) && longToShort.hasOwnProperty(key)) {
@@ -139,7 +120,7 @@ const parseShortlink = (url, baseUrl) => {
         protocol: m[1],
         domain: m[2],
         shortcode: m[3],
-        override: m.length > 4 ? decode(m[4]) || {} : {}
+        override: m.length > 4 && m[4] ? decode(m[4]) || {} : {}
     };
 }
 
@@ -186,7 +167,7 @@ class TrackJS {
                 newUrl = `${protocol}://${domain}/r/${shortcode}`;
                 baseParams = override;
             } else {
-                throw new Error(`Not a valid shortlink or shortcode: ${url}`);
+                throw new Error(`Not a valid shortlink or shortcode: ${short}`);
             }
         }
 
