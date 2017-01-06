@@ -156,7 +156,7 @@ class TrackJS {
         if (parsed && !this.options.baseUrl) {
             throw new Error('baseUrl or endpoint not specified in options.');
         } else if (parsed) {
-            newUrl = `${this.options.baseUrl}/${parsed.shortcode}`;
+            newUrl = `${this.options.baseUrl}/r/${parsed.shortcode}`;
         } else {
             parsed = this.options.strict ?
                 parseShortlink(short, this.options.baseUrl) :

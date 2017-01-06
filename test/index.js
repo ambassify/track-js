@@ -130,7 +130,7 @@ describe('# track-js', function() {
 
             const link = tracker.override('abcd', {});
 
-            assert(link == TRACK_ENDPOINT + '/' + 'abcd');
+            assert(link == TRACK_ENDPOINT + '/r/abcd');
         })
 
         it('Should append to existing overrides in url', function() {
