@@ -4,8 +4,8 @@
   "description": "Javascript client-side library for Track service",
   "main": "lib/index.js",
   "scripts": {
-    "preversion": "npm test",
-    "version": "npm run clean && npm run build && git add -A lib dist",
+    "preversion": "npm run clean && npm run build && npm test",
+    "version": "git add -A lib dist",
     "postversion": "git push && git push --tags",
     "clean": "n-clean dist && n-clean lib",
     "build": "npm run build_lib && npm run build_umd",
