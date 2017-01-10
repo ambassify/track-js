@@ -113,7 +113,7 @@ const parseShortcode = (shortcode) => {
 const parseShortlink = (url, baseUrl) => {
     const m = shortlinkRe.exec(url);
 
-    if (!m || (baseUrl && baseUrl.replace(/(https?:)?\/\//, '') !== m[2]))
+    if (!m || (baseUrl && baseUrl.replace(/^(https?:)?\/\//, '') !== m[2]))
         return false;
 
     return {
