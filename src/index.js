@@ -132,9 +132,12 @@ const loadImg = (url) => {
 export default
 class TrackJS {
     constructor(options) {
-        this.options = options || {};
+        options = options || {};
+        const baseUrl = options.baseUrl || options.endpoint;
+
+        this.options = options;
         this.options.strict = options.strict || false;
-        this.options.baseUrl = options.baseUrl || options.endpoint;
+        this.options.baseUrl = baseUrl.replace(/\/+$/, '');
 
         if (this.options.strict && !this.options.baseUrl)
             throw new Error('baseUrl or endpoint required in strict mode.');
