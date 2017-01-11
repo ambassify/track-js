@@ -12,6 +12,32 @@ describe('# track-js', function() {
     // Allows tests to run in the browser
     const Track = window.TrackJS || require('../').default;
 
+    describe('#constructor', function() {
+        it('Should work without options', function() {
+            const tracker = new Track();
+            assert(tracker);
+        })
+
+        it('Should throw without baseUrl in strict mode', function() {
+            try {
+                const tracker = new Track({ strict: true });
+                assert(false, 'Should have thrown by now');
+            } catch(e) {
+                assert(e.message.indexOf('baseUrl or endpoint required in strict mode.') === 0);
+            };
+        })
+
+        it('Should strip trailing slashes from endpoint and baseUrl', function() {
+            const tracker = new Track({
+                endpoint: 'https://foo.bar/',
+                baseUrl: 'https://foo.baz/'
+            });
+
+            assert(tracker.options.endpoint === 'https://foo.bar');
+            assert(tracker.options.baseUrl === 'https://foo.baz');
+        })
+    })
+
     describe('#shorten', function() {
         it('Should produce a shortlink', function() {
             const tracker = new Track({

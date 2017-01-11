@@ -11,7 +11,7 @@
     "build": "npm run build_lib && npm run build_umd",
     "build_lib": "babel -d lib src",
     "build_umd": "BABEL_ENV=browser webpack",
-    "test": "npm -s run test:unit",
+    "test": "npm run build_lib && npm -s run test:unit",
     "test:unit": "istanbul cover node_modules/.bin/_mocha"
   },
   "repository": {

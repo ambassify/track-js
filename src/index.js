@@ -113,7 +113,7 @@ const parseShortcode = (shortcode) => {
 const parseShortlink = (url, baseUrl) => {
     const m = shortlinkRe.exec(url);
 
-    if (!m || (baseUrl && baseUrl.replace(/(https?:)?\/\//, '') !== m[2]))
+    if (!m || (baseUrl && baseUrl.replace(/^(https?:)?\/\//, '') !== m[2]))
         return false;
 
     return {
@@ -132,9 +132,19 @@ const loadImg = (url) => {
 export default
 class TrackJS {
     constructor(options) {
-        this.options = options || {};
+        options = options || {};
+
+        let baseUrl = options.baseUrl;
+        let endpoint = options.endpoint;
+
+        baseUrl = typeof baseUrl == 'string' ? baseUrl.replace(/\/+$/, '') : baseUrl;
+        endpoint = typeof endpoint == 'string' ? endpoint.replace(/\/+$/, '') : endpoint;
+        baseUrl = baseUrl || endpoint;
+
+        this.options = options;
         this.options.strict = options.strict || false;
-        this.options.baseUrl = options.baseUrl || options.endpoint;
+        this.options.baseUrl = baseUrl;
+        this.options.endpoint = endpoint;
 
         if (this.options.strict && !this.options.baseUrl)
             throw new Error('baseUrl or endpoint required in strict mode.');
