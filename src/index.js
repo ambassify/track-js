@@ -133,11 +133,18 @@ export default
 class TrackJS {
     constructor(options) {
         options = options || {};
-        const baseUrl = options.baseUrl || options.endpoint;
+
+        let baseUrl = options.baseUrl;
+        let endpoint = options.endpoint;
+
+        baseUrl = typeof baseUrl == 'string' ? baseUrl.replace(/\/+$/, '') : baseUrl;
+        endpoint = typeof endpoint == 'string' ? endpoint.replace(/\/+$/, '') : endpoint;
+        baseUrl = baseUrl || endpoint;
 
         this.options = options;
         this.options.strict = options.strict || false;
-        this.options.baseUrl = baseUrl.replace(/\/+$/, '');
+        this.options.baseUrl = baseUrl;
+        this.options.endpoint = endpoint;
 
         if (this.options.strict && !this.options.baseUrl)
             throw new Error('baseUrl or endpoint required in strict mode.');
