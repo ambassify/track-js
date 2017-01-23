@@ -3,7 +3,7 @@
 const XMLHttpRequest = XMLHttpRequest || require('xhr2' + '');
 const { encodeUrl, decodeUrl } = require('compact-base64');
 
-const shortlinkRe = /^(https?):\/\/([^/]+)\/r\/([0-9a-z]+)(?:\/([0-9a-z-_=]+))?/i;
+const shortlinkRe = /^(https?):\/\/([^/]+)\/r\/([0-9a-z]+)(?:\/([0-9a-z-_=]+))?(\/?[\?#].+)?/i;
 const shortcodeRe = /^[0-9a-z]+$/i;
 
 const pixelTypes = {
@@ -120,7 +120,8 @@ const parseShortlink = (url, baseUrl) => {
         protocol: m[1],
         domain: m[2],
         shortcode: m[3],
-        override: m.length > 4 && m[4] ? decode(m[4]) || {} : {}
+        override: m.length > 4 && m[4] ? decode(m[4]) || {} : {},
+        remainder: m[5] || ''
     };
 }
 
@@ -162,6 +163,7 @@ class TrackJS {
         let newUrl = '';
         let baseParams = {};
         let parsed = parseShortcode(short);
+        let remainder = '';
 
         if (parsed && !this.options.baseUrl) {
             throw new Error('baseUrl or endpoint not specified in options.');
@@ -173,6 +175,7 @@ class TrackJS {
                 parseShortlink(short);
 
             if (parsed) {
+                remainder = parsed.remainder;
                 const { protocol, domain, shortcode, override } = parsed;
                 newUrl = `${protocol}://${domain}/r/${shortcode}`;
                 baseParams = override;
@@ -187,7 +190,7 @@ class TrackJS {
             newUrl += `/${encode(baseParams)}`;
         }
 
-        return newUrl;
+        return newUrl + remainder;
     }
 
     id(ambassadorId, accountId, type = pixelTypes.gif, load = false) {
