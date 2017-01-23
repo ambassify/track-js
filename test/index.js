@@ -233,6 +233,33 @@ describe('# track-js', function() {
 
             throw new Error('Tracker should throw error');
         })
+
+        it('Should leave URL query intact', function() {
+            const linkWithQuery = overriddenLink + '?query=param&other=param';
+            const tracker = new Track({
+                endpoint: TRACK_ENDPOINT,
+            });
+
+            const link = tracker.override(linkWithQuery, {
+                u: 'https://www.google.com'
+            });
+
+            assert(link == linkWithQuery);
+        })
+
+        it('Should leave URL query intact when changing overrides', function() {
+            const query = '?query=param&other=param';
+            const linkWithQuery = overriddenLink + query;
+            const tracker = new Track({
+                endpoint: TRACK_ENDPOINT,
+            });
+
+            const link = tracker.override(linkWithQuery, {
+                u: 'https://www.bubobox.com'
+            });
+
+            assert(link == baseLink + '/eyJ1IjoiaHR0cHM6Ly93d3cuYnVib2JveC5jb20ifQ' + query);
+        })
     })
 
     describe('#id', function() {
