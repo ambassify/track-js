@@ -1,5 +1,5 @@
 {
-  "name": "track-js",
+  "name": "@ambassify/track-js",
   "version": "1.2.2",
   "description": "Javascript client-side library for Track service",
   "main": "lib/index.js",
@@ -21,7 +21,7 @@
   "keywords": [
     "track"
   ],
-  "author": "Ambassify",
+  "author": "Ambassify <dev@ambassify.com>",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/bubobox/track-js/issues"
