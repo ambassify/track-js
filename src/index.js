@@ -1,6 +1,6 @@
 'use strict';
 
-const XMLHttpRequest = XMLHttpRequest || require('xhr2' + '');
+const Fetch = typeof XMLHttpRequest == 'function' ? require('unfetch') : require('node-fetch');
 const { encodeUrl, decodeUrl } = require('compact-base64');
 
 const shortlinkRe = /^(https?):\/\/([^/]+)\/r\/([0-9a-z]+)(?:\/([0-9a-z-_=]+))?(\/?[\?#].+)?/i;
@@ -30,8 +30,9 @@ const longToShort = {
     'eventAction': 'ea',
 };
 
+const attempt = (fn) => { try { return fn(); } catch(e) {} };
 const encode = (v) => encodeUrl(JSON.stringify(v));
-const decode = (v) => { try { return JSON.parse(decodeUrl(v)); } catch(e) {}; };
+const decode = (v) => attempt(() => JSON.parse(decodeUrl(v)));
 
 const shrink = o => {
     for (var key in o) {
@@ -43,67 +44,61 @@ const shrink = o => {
     return o;
 };
 
-const create = (params, options) => new Promise((resolve, reject) => {
+const error = (type, status, message, response) => {
+    const err = new Error(message);
+    err.type = type;
+    err.status = status;
+    err.message = message;
+    err.response = response;
+    throw err;
+}
+
+const create = (params, options) => Promise.resolve()
+.then(() => {
     if (!options.endpoint)
-        reject(new Error('No endpoint specified in options.'));
+        throw new Error('No endpoint specified in options.');
 
+    const fetch = options.fetch || Fetch;
     const url = `${options.endpoint}/api/r`;
-
-    const request = new XMLHttpRequest();
-    request.open('POST', url, true);
-    request.setRequestHeader('Content-Type', 'application/json');
+    const headers = { 'Content-Type': 'application/json' };
 
     if (options.accessToken)
-        request.setRequestHeader('X-API-KEY', options.accessToken);
+        headers['X-API-KEY'] = options.accessToken;
 
-    request.onload = function() {
-        const text = request.responseText;
-        const status = request.status;
-        let data = null;
-
-        try {
-            data = JSON.parse(text);
-        } catch (e) { }
-
+    return fetch(url, {
+        headers,
+        method: 'POST',
+        body: JSON.stringify(params || {})
+    })
+    .then(resp => Promise.all([
+        resp,
+        resp.status,
+        resp.text()
+    ]))
+    .catch(err => {
+        return error(responseTypes.UNKNOWN, null,
+            err.message || 'Failed to connect to endpoint', null);
+    })
+    .then(([ resp, status, text ]) => {
         const ok = status === 200 || status === 201;
+        let data = attempt(() => JSON.parse(text));
 
-        if (status === 401 || status === 403)
-            return reject({
-                type: responseTypes.UNAUTHORIZED,
-                status: status,
-                message: 'Unauthorized',
-                response: data || text
-            });
+        if (status === 401 || status === 403) {
+            return error(responseTypes.UNAUTHORIZED, status,
+                'Unauthorized', data || text);
+        }
 
-        if (!data || (ok && !data.shortlink) || (!ok && !data.message))
-            return reject({
-                type: responseTypes.UNKNOWN,
-                status: status,
-                message: 'Invalid response from endpoint',
-                response: text
-            });
+        if (!data || (ok && !data.shortlink) || (!ok && !data.message)) {
+            return error(responseTypes.UNKNOWN, status,
+                'Invalid response from endpoint', text);
+        }
 
-        if (!ok)
-            return reject({
-                type: responseTypes.UNKNOWN,
-                status: status,
-                message: data.message,
-                response: data
-            });
+        if (!ok) {
+            return error(responseTypes.UNKNOWN, status, data.message, data);
+        }
 
-        resolve(data.shortlink);
-    };
-
-    request.onerror = function() {
-        reject({
-            type: responseTypes.UNKNOWN,
-            status: null,
-            message: 'Failed to connect to endpoint',
-            response: null
-        });
-    };
-
-    request.send(JSON.stringify(params));
+        return data.shortlink;
+    });
 })
 
 const parseShortcode = (shortcode) => {
