@@ -188,6 +188,13 @@ class TrackJS {
         return newUrl + remainder;
     }
 
+    overrideOnly(params) {
+        if (!this.options.baseUrl)
+            throw new Error('baseUrl or endpoint not specified in options.');
+
+        return `${this.options.baseUrl}/or/${encode(shrink(params))}`;
+    }
+
     id(ambassadorId, accountId, type = pixelTypes.gif, load = false) {
         if (!this.options.baseUrl)
             throw new Error('baseUrl or endpoint not specified in options.');
