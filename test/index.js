@@ -262,6 +262,17 @@ describe('# track-js', function() {
         })
     })
 
+    describe('#overrideOnly', function() {
+        it('Should create an override-only track url', function() {
+            const overriddenLink = 'https://forwrd.it/or/eyJ1IjoiaHR0cHM6Ly93d3cuZ29vZ2xlLmNvbSJ9'
+            const tracker = new Track({ endpoint: TRACK_ENDPOINT });
+
+            const link = tracker.overrideOnly({ u: 'https://www.google.com' });
+
+            assert(overriddenLink == link);
+        })
+    })
+
     describe('#id', function() {
         it('Should generate the correct link with default gif extension', function() {
             const tracker = new Track({ endpoint: TRACK_ENDPOINT });
