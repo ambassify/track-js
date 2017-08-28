@@ -1,6 +1,6 @@
 'use strict';
 
-const Fetch = require('isomorphic-unfetch');
+const Fetch = require('@ambassify/fetch');
 const { encodeUrl, decodeUrl } = require('compact-base64');
 
 const shortlinkRe = /^(https?):\/\/([^/]+)\/r\/([0-9a-z]+)(?:\/([0-9a-z-_=]+))?(\/?[\?#].+)?/i;
